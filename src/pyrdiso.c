@@ -200,9 +200,9 @@ CustomObject_init(CustomObject *self, PyObject *args, PyObject *kwds)
 
   const int OBJECT_ARRAY_FLAGS = NPY_ARRAY_CARRAY | NPY_ARRAY_ENSURECOPY; // aligned, writeable, contiguous
 
-  self->arr_data = PyArray_FROM_OTF(arg_data, NPY_DOUBLE, OBJECT_ARRAY_FLAGS);
-  self->arr_indptr = PyArray_FROM_OTF(arg_indptr, NPY_INT32, OBJECT_ARRAY_FLAGS);
-  self->arr_indices = PyArray_FROM_OTF(arg_indices, NPY_INT32, OBJECT_ARRAY_FLAGS);
+  self->arr_data = (PyArrayObject *) PyArray_FROM_OTF(arg_data, NPY_DOUBLE, OBJECT_ARRAY_FLAGS);
+  self->arr_indptr = (PyArrayObject *) PyArray_FROM_OTF(arg_indptr, NPY_INT32, OBJECT_ARRAY_FLAGS);
+  self->arr_indices = (PyArrayObject *) PyArray_FROM_OTF(arg_indices, NPY_INT32, OBJECT_ARRAY_FLAGS);
 
   if (self->arr_data == NULL || self->arr_indptr == NULL || self->arr_indices == NULL) {
     Py_XDECREF(self->arr_data);
@@ -355,7 +355,7 @@ CustomObject_solve(CustomObject *self,
   const bool symmetric_positive_factorization = (self->mtype == 2);
   const bool nonsymmetric_factorization = (self->mtype == 11);
 
-  PyArrayObject* arr_rhs = PyArray_FROM_OTF(arg_rhs, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+  PyArrayObject* arr_rhs = (PyArrayObject *) PyArray_FROM_OTF(arg_rhs, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
 
   if (arr_rhs == NULL) {
     PyErr_SetString(ModuleError, "Failed to obtain array object for RHS iput argument");
@@ -372,7 +372,7 @@ CustomObject_solve(CustomObject *self,
   }
 
   const npy_intp output_array_dims[1] = {num_data};
-  PyArrayObject *arr_solution = PyArray_SimpleNew(1, output_array_dims, NPY_DOUBLE);
+  PyArrayObject *arr_solution = (PyArrayObject *) PyArray_SimpleNew(1, output_array_dims, NPY_DOUBLE);
 
   if (arr_solution == NULL) {
     Py_DECREF(arr_rhs);
@@ -442,9 +442,9 @@ CustomObject_csr_data(CustomObject *self)
     return NULL;
   }
 
-  PyArray_CopyInto(new_data, self->arr_data);
-  PyArray_CopyInto(new_indptr, self->arr_indptr);
-  PyArray_CopyInto(new_indices, self->arr_indices);
+  PyArray_CopyInto((PyArrayObject *) new_data, self->arr_data);
+  PyArray_CopyInto((PyArrayObject *) new_indptr, self->arr_indptr);
+  PyArray_CopyInto((PyArrayObject *) new_indices, self->arr_indices);
 
   PyObject* outDict = Py_BuildValue("{s:O,s:O,s:O}",
                                     "data", new_data, 
@@ -588,10 +588,19 @@ pyrdiso_check_csr(PyObject *self,
 
   PyArrayObject* arr_data = NULL;
   if (arg_data != NULL)
-    arr_data = PyArray_FROM_OTF(arg_data, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    arr_data = (PyArrayObject*) PyArray_FROM_OTF(arg_data, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
 
-  PyArrayObject* arr_indptr = PyArray_FROM_OTF(arg_indptr, NPY_INT32, NPY_ARRAY_IN_ARRAY);
-  PyArrayObject* arr_indices = PyArray_FROM_OTF(arg_indices, NPY_INT32, NPY_ARRAY_IN_ARRAY);
+  PyArrayObject* arr_indptr = (PyArrayObject *) PyArray_FROM_OTF(arg_indptr, NPY_INT32, NPY_ARRAY_IN_ARRAY);
+  PyArrayObject* arr_indices = (PyArrayObject *) PyArray_FROM_OTF(arg_indices, NPY_INT32, NPY_ARRAY_IN_ARRAY);
+
+  if (arr_indptr == NULL || arr_indices == NULL || (arg_data != NULL && arr_data == NULL)) {
+    Py_XDECREF(arr_data);
+    Py_XDECREF(arr_indptr);
+    Py_XDECREF(arr_indices);
+
+    PyErr_SetString(ModuleError, "array object creation error");
+    return NULL; 
+  }
 
   int num_data = -1;
   double* ptr_data = NULL;

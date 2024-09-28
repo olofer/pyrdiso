@@ -1,6 +1,10 @@
 import pyrdiso
 import numpy as np
 import scipy.sparse as scsp
+from scipy import __version__ as scipy_version
+
+print("NUMPY version", np.__version__)
+print("SCIPY version", scipy_version)
 
 assert pyrdiso.smoke() is None, "Expected None as returned value"
 

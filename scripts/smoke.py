@@ -22,6 +22,8 @@ assert (
         indices=indices,
         shape=(size, size),
         check=pyrdiso.CHECK_GENERAL_STRUCTURE,
+        data=data, # this is optional
+        verbose=1, # this is 0 by default
     )
     == 0
 )

@@ -602,17 +602,6 @@ pyrdiso_check_csr(PyObject *self,
     return NULL; 
   }
 
-  int num_data = -1;
-  double* ptr_data = NULL;
-
-  if (arr_data != NULL) {
-    num_data = PyArray_SIZE((PyArrayObject *) arr_data);
-    ptr_data = PyArray_DATA((PyArrayObject *) arr_data);          // a
-
-    // TODO: if data is given verify it has the correct length, and there are no NaNs
-
-  }
-
   MKL_INT* ptr_indptr = PyArray_DATA((PyArrayObject *) arr_indptr);     // ia
   MKL_INT* ptr_indices = PyArray_DATA((PyArrayObject *) arr_indices);   // ja
 
@@ -624,6 +613,23 @@ pyrdiso_check_csr(PyObject *self,
                                  one_based_, 
                                  mkl_structure_, 
                                  verbose);
+
+  if (error_ == 0 && arr_data != NULL) {
+    // If there already is a structural error indicated; skip this test.
+    // If there is no structural error, and "data" is provided; scan for non-finite numbers.
+    int num_data = PyArray_SIZE((PyArrayObject *) arr_data);
+    double* ptr_data = PyArray_DATA((PyArrayObject *) arr_data);  // a
+    int num_nonfinite = 0;
+    for (int i = 0; i < num_data; i++) {
+      if (isfinite(ptr_data[i]) == 0) num_nonfinite++;
+    }
+    if (num_nonfinite > 0) {
+      error_ = -num_nonfinite;
+    }
+    if (verbose > 0) {
+      printf("Data scan: %i non-finite values\n", num_nonfinite);
+    }
+  }
 
   Py_XDECREF(arr_data);
   Py_XDECREF(arr_indptr);

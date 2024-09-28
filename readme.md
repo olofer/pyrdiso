@@ -10,6 +10,8 @@ Interface to `MKL`'s `PARDISO` sparse linear solver. Create custom `python` obje
 
 No error messages? Then OK.
 
+Installation/testing has been successful with `Ubuntu` versions `20.04`, and `22.04` (under `WSL2`).
+
 ### More serious testing
 
 4. Run `python scripts/test_random_matrix.py --random-diag 0.1`
@@ -24,7 +26,7 @@ See `scripts/` folder for various tests and use-cases.
 
 It is useful to run `python setup.py build_ext --force --inplace` to see the build commands and progress in detail. 
 
-## Reference
+## References
 
 - https://docs.python.org/3/extending/index.html
 - https://numpy.org/doc/stable/reference/c-api/index.html

@@ -7,8 +7,8 @@ import argparse
 def make_random_coo(m: int, rho: float):
     nnz_ = int(m * m * rho)
     data_ = np.random.randn(nnz_)
-    rows_ = np.random.randint(low=0, high=m, size=nnz_)
-    cols_ = np.random.randint(low=0, high=m, size=nnz_)
+    rows_ = np.random.randint(low=0, high=m, size=nnz_, dtype=np.int32)
+    cols_ = np.random.randint(low=0, high=m, size=nnz_, dtype=np.int32)
     return scsp.coo_array((data_, (rows_, cols_)), shape=(m, m))
 
 
@@ -24,8 +24,8 @@ def make_upper_csr_proper(M: scsp.base) -> scsp.csr:
     n = M.shape[0]
     assert M.shape[1] == n, "square matrix required"
     vals = np.concatenate([coo_.data, diag_])
-    rows = np.concatenate([coo_.row, np.arange(n)])
-    cols = np.concatenate([coo_.col, np.arange(n)])
+    rows = np.concatenate([coo_.row, np.arange(n)], dtype=np.int32)
+    cols = np.concatenate([coo_.col, np.arange(n)], dtype=np.int32)
     return scsp.csr_array((vals, (rows, cols)), shape=(n, n))
 
 

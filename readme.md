@@ -22,6 +22,12 @@ Installation/testing has been successful with `Ubuntu` versions `20.04`, and `22
 
 See `scripts/` folder for various tests and use-cases.
 
+To auto-download and time the factorization and solution times for various sparse matrices run this:
+```
+python3 scripts/matrixmarket_benchmark.py --repeats 50
+```
+which will also compare to the `scipy.sparse` default solver `SUPERLU`, and if installed also to `UMFPACK` (also through `scipy.sparse`).
+
 ## Development notes
 
 It is useful to run `python setup.py build_ext --force --inplace` to see the build commands and progress in detail. 

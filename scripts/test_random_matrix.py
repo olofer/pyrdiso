@@ -13,7 +13,7 @@ def make_random_coo(m: int, rho: float):
 
 
 def trip_on_error(obj: pyrdiso.CustomObject):
-    if obj_.error() != 0:
+    if obj.error() != 0:
         print("ERROR %i: %s" % (obj.error(), pyrdiso.error_message_str(obj.error())))
         assert False
 

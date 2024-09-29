@@ -266,6 +266,8 @@ CustomObject_init(CustomObject *self, PyObject *args, PyObject *kwds)
 
   if (symmetric_factorization || symmetric_positive_factorization) 
   {
+    self->iparm[12] = 0;
+
     self->phase = 11;
 
     PARDISO(self->pt, &self->maxfct, &self->mnum, &self->mtype, &self->phase,
